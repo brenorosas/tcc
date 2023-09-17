@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: tcc-pg
+    image: postgres:12-alpine
+    command: postgres -c 'max_connections=500'
+    environment:
+      POSTGRES_USER: tcc
+      POSTGRES_PASSWORD: tcc
+      POSTGRES_DB: tcc
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5432:5432
