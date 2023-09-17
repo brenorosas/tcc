@@ -1,6 +1,6 @@
-use std::net::SocketAddr;
-
 use backend::{controller::routes::build_routes, storage::postgres::config::PostgresConfig};
+use dotenv::dotenv;
+use std::net::SocketAddr;
 use structopt::StructOpt;
 use tokio_postgres::NoTls;
 use tracing::{event, Level};
@@ -80,6 +80,7 @@ async fn server(opt: Server) -> Result<(), anyhow::Error> {
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     tracing_subscriber::fmt().init();
+    dotenv().ok();
 
     let opt = CLI::from_args();
     match opt.cmd {

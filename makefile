@@ -1,5 +1,6 @@
 run-server:
-	cargo run --manifest-path ./backend/Cargo.toml server
+	cd backend && cargo run server
 
 run-migrations:
-	cargo run --manifest-path ./backend/Cargo.toml migrations
+	cd backend && cargo run migrations
+	
