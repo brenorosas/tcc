@@ -21,3 +21,33 @@ impl CreateUserDto {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn should_validate() {
+        let mut create_user_dto = CreateUserDto {
+            email: "".to_owned(),
+            password: "test123".to_owned(),
+            password_confirmation: "test12".to_owned(),
+        };
+
+        assert!(matches!(
+            create_user_dto.validate().err().unwrap(),
+            UsersServiceError::InvalidEmail
+        ));
+
+        create_user_dto.email = "test@test.com".to_owned();
+
+        assert!(matches!(
+            create_user_dto.validate().err().unwrap(),
+            UsersServiceError::PasswordConfirmationDoesNotMatch
+        ));
+
+        create_user_dto.password_confirmation = "test123".to_owned();
+
+        assert!(create_user_dto.validate().is_ok());
+    }
+}
