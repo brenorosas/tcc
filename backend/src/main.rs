@@ -1,6 +1,10 @@
-use backend::{controller::routes::build_routes, storage::postgres::config::PostgresConfig};
+use backend::{
+    controller::routes::build_routes,
+    storage::postgres::{config::PostgresConfig, PostgresStorage},
+    user::service::UsersService,
+};
 use dotenv::dotenv;
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 use structopt::StructOpt;
 use tokio_postgres::NoTls;
 use tracing::{event, Level};
@@ -69,8 +73,12 @@ async fn server(opt: Server) -> Result<(), anyhow::Error> {
         http_addr
     );
 
+    let postgres_config = PostgresConfig::new();
+    let postgres_storage = Arc::new(PostgresStorage::new(postgres_config).await.unwrap());
+    let user_service = Arc::new(UsersService::new(postgres_storage));
+
     axum::Server::bind(&http_addr)
-        .serve(build_routes().into_make_service())
+        .serve(build_routes(user_service).into_make_service())
         .await
         .unwrap();
 
