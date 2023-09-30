@@ -1,6 +1,6 @@
 use crate::{user::service::errors::UsersServiceError, utils::email::is_valid_email};
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateUserDto {
     pub email: String,
