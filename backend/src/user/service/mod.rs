@@ -12,6 +12,8 @@ use super::dtos::{
     create_user_dto::CreateUserDto, create_user_response_dto::CreateUserResponseDto,
 };
 
+use bcrypt::{hash, DEFAULT_COST};
+
 pub struct UsersService {
     users_repository: Arc<dyn UsersRepository>,
 }
@@ -38,11 +40,13 @@ impl UsersService {
         }
 
         let user_uuid = Uuid::new_v4();
-        let user_encrypted_password = create_user_dto.password;
+        let user_hashed_password = hash(create_user_dto.password, DEFAULT_COST).map_err(|err| {
+            UsersServiceError::Unknown(anyhow::anyhow!("Failed to hash user password err: {}", err))
+        })?;
 
         let user_entity = self
             .users_repository
-            .create_user(&user_uuid, &user_email, &user_encrypted_password)
+            .create_user(&user_uuid, &user_email, &user_hashed_password)
             .await?;
 
         Ok(CreateUserResponseDto {

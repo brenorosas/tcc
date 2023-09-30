@@ -11,7 +11,7 @@ pub trait UsersRepository: Sync + Send {
         &self,
         user_uuid: &Uuid,
         user_email: &str,
-        user_encrypted_password: &str,
+        user_hashed_password: &str,
     ) -> anyhow::Result<UserEntity>;
 }
 
@@ -34,12 +34,12 @@ impl UsersRepository for PostgresStorage {
         &self,
         user_uuid: &Uuid,
         user_email: &str,
-        user_encrypted_password: &str,
+        user_hashed_password: &str,
     ) -> anyhow::Result<UserEntity> {
         let connection = self.get_connection().await?;
         let stmt = connection.prepare_cached(INSERT_USER).await?;
         let row = connection
-            .query_one(&stmt, &[&user_uuid, &user_email, &user_encrypted_password])
+            .query_one(&stmt, &[&user_uuid, &user_email, &user_hashed_password])
             .await?;
 
         let user_entity = serde_json::from_value(row.try_get("user_entity")?)?;

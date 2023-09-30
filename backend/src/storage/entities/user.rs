@@ -6,7 +6,7 @@ use uuid::Uuid;
 pub struct UserEntity {
     pub uuid: Uuid,
     pub email: String,
-    pub encrypted_password: String,
+    pub hashed_password: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
