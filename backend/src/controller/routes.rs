@@ -1,18 +1,14 @@
 use std::sync::Arc;
 
 use axum::{
-    debug_handler,
     extract::Extension,
     routing::{get, post},
-    Json, Router,
+    Router,
 };
 
-use crate::user::{
-    dtos::{create_user_dto::CreateUserDto, create_user_response_dto::CreateUserResponseDto},
-    service::UsersService,
-};
+use crate::user::service::UsersService;
 
-use super::errors::ErrorResponse;
+use super::handlers::user_register_handler::user_register_handler;
 
 pub fn build_healthcheck_route() -> Router {
     Router::new()
@@ -34,17 +30,4 @@ pub fn build_routes(user_service: Arc<UsersService>) -> Router {
             .merge(public_api)
             .layer(Extension(user_service)),
     )
-}
-
-#[debug_handler]
-async fn user_register_handler(
-    Extension(user_service): Extension<Arc<UsersService>>,
-    Json(body): Json<CreateUserDto>,
-) -> Result<Json<CreateUserResponseDto>, ErrorResponse> {
-    let response = user_service
-        .create_user(body)
-        .await
-        .map_err(|error| ErrorResponse::from(error))?;
-
-    Ok(Json(response))
 }
