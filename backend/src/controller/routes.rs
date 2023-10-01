@@ -8,7 +8,7 @@ use axum::{
 
 use crate::user::service::UsersService;
 
-use super::handlers::user_register_handler::user_register_handler;
+use super::handlers::{user_login::user_login_handler, user_register::user_register_handler};
 
 pub fn build_healthcheck_route() -> Router {
     Router::new()
@@ -17,7 +17,9 @@ pub fn build_healthcheck_route() -> Router {
 }
 
 pub fn build_public_api_routes() -> Router {
-    Router::new().route("/users/register", post(user_register_handler))
+    Router::new()
+        .route("/users/register", post(user_register_handler))
+        .route("/users/login", post(user_login_handler))
 }
 
 pub fn build_routes(user_service: Arc<UsersService>) -> Router {

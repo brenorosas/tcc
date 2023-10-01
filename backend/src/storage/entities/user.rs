@@ -1,8 +1,8 @@
 use chrono::NaiveDateTime;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct UserEntity {
     pub uuid: Uuid,
     pub email: String,

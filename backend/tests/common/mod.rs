@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use backend::{
+    jwt::service::JwtService,
     storage::postgres::{config::PostgresConfig, PostgresStorage},
     user::service::UsersService,
 };
@@ -22,7 +23,8 @@ pub async fn delete_all_from_db() {
 pub async fn create_users_service() -> UsersService {
     let postgres_config = PostgresConfig::new();
     let postgres_storage = Arc::new(PostgresStorage::new(postgres_config).await.unwrap());
-    let user_service = UsersService::new(postgres_storage);
+    let jwt_service = Arc::new(JwtService::new());
+    let user_service = UsersService::new(postgres_storage, jwt_service);
 
     user_service
 }

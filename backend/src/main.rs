@@ -1,5 +1,6 @@
 use backend::{
     controller::routes::build_routes,
+    jwt::service::JwtService,
     storage::postgres::{config::PostgresConfig, PostgresStorage},
     user::service::UsersService,
 };
@@ -75,7 +76,8 @@ async fn server(opt: Server) -> Result<(), anyhow::Error> {
 
     let postgres_config = PostgresConfig::new();
     let postgres_storage = Arc::new(PostgresStorage::new(postgres_config).await.unwrap());
-    let user_service = Arc::new(UsersService::new(postgres_storage));
+    let jwt_service = Arc::new(JwtService::new());
+    let user_service = Arc::new(UsersService::new(postgres_storage, jwt_service));
 
     axum::Server::bind(&http_addr)
         .serve(build_routes(user_service).into_make_service())

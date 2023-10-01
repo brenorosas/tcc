@@ -1,7 +1,7 @@
 use thiserror::Error;
 use tracing::{event, Level};
 
-use crate::controller::errors::ErrorResponse;
+use crate::{controller::errors::ErrorResponse, jwt::service::errors::JwtServiceError};
 
 #[derive(Error, Debug)]
 pub enum UsersServiceError {
@@ -13,6 +13,12 @@ pub enum UsersServiceError {
 
     #[error("user already registered")]
     UserAlreadyRegistered,
+
+    #[error("incorrect credentials")]
+    IncorrectCredentials,
+
+    #[error(transparent)]
+    JwtError(#[from] JwtServiceError),
 
     #[error(transparent)]
     Unknown(#[from] anyhow::Error),
@@ -36,6 +42,12 @@ impl From<UsersServiceError> for ErrorResponse {
                 message: "User already registered".to_string(),
                 pt_br_message: "Usuário já cadastrado".to_string(),
             },
+            UsersServiceError::IncorrectCredentials => ErrorResponse {
+                status_code: axum::http::StatusCode::UNAUTHORIZED,
+                message: "Incorrect credentials".to_string(),
+                pt_br_message: "Credenciais incorretas".to_string(),
+            },
+            UsersServiceError::JwtError(err) => ErrorResponse::from(err),
             UsersServiceError::Unknown(err) => {
                 event!(Level::ERROR, "Unknown error: {}", err);
                 ErrorResponse {

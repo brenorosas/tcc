@@ -1,4 +1,4 @@
-use tracing::{event, Level};
+use crate::utils::env::get_var;
 
 pub struct PostgresConfig {
     pub host: String,
@@ -6,19 +6,6 @@ pub struct PostgresConfig {
     pub user: String,
     pub password: String,
     pub dbname: String,
-}
-
-pub fn get_var(key: &str) -> Option<String> {
-    match std::env::var(key) {
-        Ok(value) => {
-            event!(Level::DEBUG, "Found env var {}", key);
-            Some(value)
-        }
-        Err(_) => {
-            event!(Level::WARN, "Couldn't find env var {}", key);
-            None
-        }
-    }
 }
 
 impl PostgresConfig {
