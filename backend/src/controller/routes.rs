@@ -2,13 +2,20 @@ use std::sync::Arc;
 
 use axum::{
     extract::Extension,
+    middleware,
     routing::{get, post},
     Router,
 };
 
-use crate::user::service::UsersService;
+use crate::{tmdb::service::TmdbService, user::service::UsersService};
 
-use super::handlers::{user_login::user_login_handler, user_register::user_register_handler};
+use super::{
+    handlers::{
+        tmdb_movie_discover::tmdb_movie_discover_handler, user_login::user_login_handler,
+        user_register::user_register_handler,
+    },
+    middlewares::auth::auth_middleware,
+};
 
 pub fn build_healthcheck_route() -> Router {
     Router::new()
@@ -16,20 +23,32 @@ pub fn build_healthcheck_route() -> Router {
         .route("/health", get(|| async { "OK" }))
 }
 
-pub fn build_public_api_routes() -> Router {
+pub fn build_public_routes() -> Router {
     Router::new()
         .route("/users/register", post(user_register_handler))
         .route("/users/login", post(user_login_handler))
 }
 
-pub fn build_routes(user_service: Arc<UsersService>) -> Router {
+pub fn build_authed_routes() -> Router {
+    Router::new()
+        .route(
+            "/movies/tmdb/movie/discover",
+            get(tmdb_movie_discover_handler),
+        )
+        .layer(middleware::from_fn(auth_middleware))
+}
+
+pub fn build_routes(user_service: Arc<UsersService>, tmdb_service: Arc<TmdbService>) -> Router {
     let healthcheck = build_healthcheck_route();
-    let public_api = build_public_api_routes();
+    let public_routes = build_public_routes();
+    let authed_routes = build_authed_routes();
 
     Router::new().merge(healthcheck).nest(
         "/api/v1",
         Router::new()
-            .merge(public_api)
-            .layer(Extension(user_service)),
+            .merge(public_routes)
+            .merge(authed_routes)
+            .layer(Extension(user_service))
+            .layer(Extension(tmdb_service)),
     )
 }

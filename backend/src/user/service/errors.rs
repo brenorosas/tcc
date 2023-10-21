@@ -1,5 +1,6 @@
 use thiserror::Error;
 use tracing::{event, Level};
+use uuid::Uuid;
 
 use crate::{controller::errors::ErrorResponse, jwt::service::errors::JwtServiceError};
 
@@ -16,6 +17,9 @@ pub enum UsersServiceError {
 
     #[error("incorrect credentials")]
     IncorrectCredentials,
+
+    #[error("user not found for uuid: {0}")]
+    UserNotFound(Uuid),
 
     #[error(transparent)]
     JwtError(#[from] JwtServiceError),
@@ -46,6 +50,11 @@ impl From<UsersServiceError> for ErrorResponse {
                 status_code: axum::http::StatusCode::UNAUTHORIZED,
                 message: "Incorrect credentials".to_string(),
                 pt_br_message: "Credenciais incorretas".to_string(),
+            },
+            UsersServiceError::UserNotFound(user_uuid) => ErrorResponse {
+                status_code: axum::http::StatusCode::NOT_FOUND,
+                message: format!("User not found for uuid: {}", user_uuid),
+                pt_br_message: "Usuário não encontrado".to_string(),
             },
             UsersServiceError::JwtError(err) => ErrorResponse::from(err),
             UsersServiceError::Unknown(err) => {

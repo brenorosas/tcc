@@ -1,0 +1,27 @@
+use std::sync::Arc;
+
+use axum::{debug_handler, extract::Query, Extension, Json};
+
+use crate::{
+    controller::errors::ErrorResponse,
+    tmdb::{
+        dtos::{
+            discover_movie_dto::DiscoverMovieDto,
+            discover_movie_response_dto::DiscoverMovieResponseDto,
+        },
+        service::TmdbService,
+    },
+};
+
+#[debug_handler]
+pub async fn tmdb_movie_discover_handler(
+    Extension(tmdb_service): Extension<Arc<TmdbService>>,
+    Query(params): Query<DiscoverMovieDto>,
+) -> Result<Json<DiscoverMovieResponseDto>, ErrorResponse> {
+    let response = tmdb_service
+        .discover_movie(params)
+        .await
+        .map_err(|error| ErrorResponse::from(error))?;
+
+    Ok(Json(response))
+}

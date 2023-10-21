@@ -21,3 +21,15 @@ pub const GET_USER_BY_EMAIL: &str = "
     FROM users
     WHERE email = $1;
 ";
+
+pub const GET_USER_BY_UUID: &str = "
+    SELECT jsonb_build_object(
+        'uuid', uuid,
+        'email', email,
+        'hashed_password', hashed_password,
+        'created_at', created_at,
+        'updated_at', updated_at
+    ) AS user_entity
+    FROM users
+    WHERE uuid = $1;
+";

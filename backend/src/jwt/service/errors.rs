@@ -43,7 +43,9 @@ impl From<JwtServiceError> for ErrorResponse {
 
 impl From<&ErrorKind> for JwtServiceError {
     fn from(error: &ErrorKind) -> JwtServiceError {
+        println!("{:?}", error);
         match error {
+            ErrorKind::InvalidSignature => JwtServiceError::InvalidToken,
             ErrorKind::InvalidToken => JwtServiceError::InvalidToken,
             ErrorKind::ExpiredSignature => JwtServiceError::ExpiredToken,
             _ => JwtServiceError::Unknown(anyhow!("{:?}", error)),

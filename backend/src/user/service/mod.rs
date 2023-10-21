@@ -6,7 +6,8 @@ use chrono::{Duration, Utc};
 use uuid::Uuid;
 
 use crate::{
-    jwt::service::JwtService, storage::repositories::users::users_repository::UsersRepository,
+    jwt::service::JwtService,
+    storage::{entities::user::UserEntity, repositories::users::users_repository::UsersRepository},
 };
 
 use self::errors::UsersServiceError;
@@ -92,5 +93,16 @@ impl UsersService {
         )?;
 
         Ok(UserLoginResponseDto { jwt_token })
+    }
+
+    pub async fn validate_user(&self, jwt_token: &str) -> Result<UserEntity, UsersServiceError> {
+        let user_uuid = self.jwt_service.decode_token::<Uuid>(jwt_token)?;
+        let user_entity = self
+            .users_repository
+            .get_user_by_uuid(&user_uuid)
+            .await?
+            .ok_or(UsersServiceError::UserNotFound(user_uuid))?;
+
+        Ok(user_entity)
     }
 }
