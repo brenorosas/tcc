@@ -14,5 +14,5 @@ pub struct DiscoverMovieResultDto {
     pub title: String,
     pub overview: String,
     pub poster_path: String,
-    pub backdrop_path: String,
+    pub backdrop_path: Option<String>,
 }

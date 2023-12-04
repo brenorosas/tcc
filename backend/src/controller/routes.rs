@@ -6,6 +6,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use tower_http::cors::{Any, CorsLayer};
 
 use crate::{tmdb::service::TmdbService, user::service::UsersService};
 
@@ -42,6 +43,10 @@ pub fn build_routes(user_service: Arc<UsersService>, tmdb_service: Arc<TmdbServi
     let healthcheck = build_healthcheck_route();
     let public_routes = build_public_routes();
     let authed_routes = build_authed_routes();
+    let cors = CorsLayer::new()
+        .allow_methods(Any)
+        .allow_origin(Any)
+        .allow_headers(Any);
 
     Router::new().merge(healthcheck).nest(
         "/api/v1",
@@ -49,6 +54,7 @@ pub fn build_routes(user_service: Arc<UsersService>, tmdb_service: Arc<TmdbServi
             .merge(public_routes)
             .merge(authed_routes)
             .layer(Extension(user_service))
-            .layer(Extension(tmdb_service)),
+            .layer(Extension(tmdb_service))
+            .layer(cors),
     )
 }
