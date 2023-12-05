@@ -6,7 +6,12 @@ use std::time::Duration;
 use self::errors::TmdbServiceError;
 
 use super::dtos::{
-    discover_movie_dto::DiscoverMovieDto, discover_movie_response_dto::DiscoverMovieResponseDto,
+    discover_movie_by_id_response_dto::{
+        DiscoverMovieByIdRecomendationsMovieResponseDto,
+        DiscoverMovieByIdRecomendationsResponseDto, DiscoverMovieByIdResponseDto,
+    },
+    discover_movie_dto::DiscoverMovieDto,
+    discover_movie_response_dto::DiscoverMovieResponseDto,
 };
 use reqwest::{Client, ClientBuilder};
 
@@ -63,5 +68,29 @@ impl TmdbService {
             },
             Err(error) => Err(TmdbServiceError::Unknown(error.into())),
         }
+    }
+    pub async fn discover_movie_by_id(
+        &self,
+        movie_id: i64,
+    ) -> Result<DiscoverMovieByIdResponseDto, TmdbServiceError> {
+        Ok(DiscoverMovieByIdResponseDto {
+            movie: DiscoverMovieByIdRecomendationsMovieResponseDto {
+                movie_id: movie_id + 20,
+                poster_path: "breno".to_owned(),
+            },
+            recomendations: vec![DiscoverMovieByIdRecomendationsResponseDto {
+                recomendation_title: "Generos parecidos".to_owned(),
+                recomendation_movies: vec![
+                    DiscoverMovieByIdRecomendationsMovieResponseDto {
+                        movie_id: movie_id + 21,
+                        poster_path: "levi".to_owned(),
+                    },
+                    DiscoverMovieByIdRecomendationsMovieResponseDto {
+                        movie_id: movie_id + 22,
+                        poster_path: "thalita".to_owned(),
+                    },
+                ],
+            }],
+        })
     }
 }

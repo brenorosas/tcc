@@ -12,8 +12,9 @@ use crate::{tmdb::service::TmdbService, user::service::UsersService};
 
 use super::{
     handlers::{
-        tmdb_movie_discover::tmdb_movie_discover_handler, user_login::user_login_handler,
-        user_register::user_register_handler,
+        tmdb_movie_discover::tmdb_movie_discover_handler,
+        tmdb_movie_discover_by_id::tmdb_movie_discover_by_id_handler,
+        user_login::user_login_handler, user_register::user_register_handler,
     },
     middlewares::auth::auth_middleware,
 };
@@ -35,6 +36,10 @@ pub fn build_authed_routes() -> Router {
         .route(
             "/movies/tmdb/movie/discover",
             get(tmdb_movie_discover_handler),
+        )
+        .route(
+            "/movies/tmdb/movie/discover/:movie_id",
+            get(tmdb_movie_discover_by_id_handler),
         )
         .layer(middleware::from_fn(auth_middleware))
 }
