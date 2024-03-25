@@ -77,6 +77,7 @@ impl TmdbService {
             movie: DiscoverMovieByIdRecommendationsMovieResponseDto {
                 movie_id: movie_id + 20,
                 poster_path: "breno".to_owned(),
+                title: "Breno".to_owned(),
             },
             recommendations: vec![DiscoverMovieByIdRecommendationsResponseDto {
                 recommendation_title: "Generos parecidos".to_owned(),
@@ -84,10 +85,12 @@ impl TmdbService {
                     DiscoverMovieByIdRecommendationsMovieResponseDto {
                         movie_id: movie_id + 21,
                         poster_path: "levi".to_owned(),
+                        title: "Levi".to_owned(),
                     },
                     DiscoverMovieByIdRecommendationsMovieResponseDto {
                         movie_id: movie_id + 22,
                         poster_path: "thalita".to_owned(),
+                        title: "Thalita".to_owned(),
                     },
                 ],
             }],

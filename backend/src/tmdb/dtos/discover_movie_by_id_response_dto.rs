@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct DiscoverMovieByIdRecommendationsMovieResponseDto {
     pub movie_id: i64,
     pub poster_path: String,
+    pub title: String,
 }
 
 #[derive(Serialize, Deserialize)]
