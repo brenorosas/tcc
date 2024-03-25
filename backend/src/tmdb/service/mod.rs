@@ -7,8 +7,8 @@ use self::errors::TmdbServiceError;
 
 use super::dtos::{
     discover_movie_by_id_response_dto::{
-        DiscoverMovieByIdRecomendationsMovieResponseDto,
-        DiscoverMovieByIdRecomendationsResponseDto, DiscoverMovieByIdResponseDto,
+        DiscoverMovieByIdRecommendationsMovieResponseDto,
+        DiscoverMovieByIdRecommendationsResponseDto, DiscoverMovieByIdResponseDto,
     },
     discover_movie_dto::DiscoverMovieDto,
     discover_movie_response_dto::DiscoverMovieResponseDto,
@@ -74,18 +74,18 @@ impl TmdbService {
         movie_id: i64,
     ) -> Result<DiscoverMovieByIdResponseDto, TmdbServiceError> {
         Ok(DiscoverMovieByIdResponseDto {
-            movie: DiscoverMovieByIdRecomendationsMovieResponseDto {
+            movie: DiscoverMovieByIdRecommendationsMovieResponseDto {
                 movie_id: movie_id + 20,
                 poster_path: "breno".to_owned(),
             },
-            recomendations: vec![DiscoverMovieByIdRecomendationsResponseDto {
-                recomendation_title: "Generos parecidos".to_owned(),
-                recomendation_movies: vec![
-                    DiscoverMovieByIdRecomendationsMovieResponseDto {
+            recommendations: vec![DiscoverMovieByIdRecommendationsResponseDto {
+                recommendation_title: "Generos parecidos".to_owned(),
+                recommendation_movies: vec![
+                    DiscoverMovieByIdRecommendationsMovieResponseDto {
                         movie_id: movie_id + 21,
                         poster_path: "levi".to_owned(),
                     },
-                    DiscoverMovieByIdRecomendationsMovieResponseDto {
+                    DiscoverMovieByIdRecommendationsMovieResponseDto {
                         movie_id: movie_id + 22,
                         poster_path: "thalita".to_owned(),
                     },
