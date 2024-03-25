@@ -1,4 +1,5 @@
-'use client'
+/* eslint-disable react-hooks/rules-of-hooks */
+"use client";
 import * as React from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import api from "../api";
@@ -11,6 +12,7 @@ export default function Movies() {
   if (!authToken) {
     router.replace("/signIn");
   }
+
   const [loading, setLoading] = React.useState(true);
   const [rows, setRows] = React.useState<[]>([]);
   const [rowCount, setRowCount] = React.useState(0);
@@ -34,9 +36,10 @@ export default function Movies() {
         setRows(response.data.results);
         setRowCount(response.data.total_results);
         console.log(response.data);
-      }).catch((error: any) => {
-          console.log(error);
-          setLoading(false);
+      })
+      .catch((error: any) => {
+        console.log(error);
+        setLoading(false);
       });
   }, [authToken, paginationModel]);
   return (
@@ -49,8 +52,6 @@ export default function Movies() {
       pageSizeOptions={[20]}
       paginationModel={paginationModel}
       onPaginationModelChange={setPaginationModel}
-    >
-      oi
-    </DataGrid>
+    />
   );
 }
