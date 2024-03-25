@@ -57,6 +57,9 @@ export default function Movies() {
         pageSizeOptions={[20]}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
+        onCellClick={(cell) => {
+          router.push(`/movies/${cell.row.id}`);
+        }}
       />
       <Snackbar
         open={openSnackBar}
