@@ -6,12 +6,9 @@ use std::time::Duration;
 use self::errors::TmdbServiceError;
 
 use super::dtos::{
-    discover_movie_by_id_response_dto::{
-        DiscoverMovieByIdRecommendationsMovieResponseDto,
-        DiscoverMovieByIdRecommendationsResponseDto, DiscoverMovieByIdResponseDto,
-    },
+    discover_movie_by_id_response_dto::DiscoverMovieByIdResponseDto,
     discover_movie_dto::DiscoverMovieDto,
-    discover_movie_response_dto::DiscoverMovieResponseDto,
+    discover_movie_response_dto::{DiscoverMovieResponseDto, DiscoverMovieResultDto},
 };
 use reqwest::{Client, ClientBuilder};
 
@@ -73,27 +70,32 @@ impl TmdbService {
         &self,
         movie_id: i64,
     ) -> Result<DiscoverMovieByIdResponseDto, TmdbServiceError> {
-        Ok(DiscoverMovieByIdResponseDto {
-            movie: DiscoverMovieByIdRecommendationsMovieResponseDto {
-                movie_id: movie_id + 20,
-                poster_path: "breno".to_owned(),
-                title: "Breno".to_owned(),
+        let response = self
+            .client
+            .get(format!("{}/movie/{}", self.base_url, movie_id))
+            .bearer_auth(&self.bearer_token)
+            .send()
+            .await;
+
+        let main_movie = match response {
+            Ok(response) => match response.status() {
+                reqwest::StatusCode::OK => response
+                    .json::<DiscoverMovieResultDto>()
+                    .await
+                    .map_err(|_| TmdbServiceError::UnexpectedResponseDto),
+                reqwest::StatusCode::UNAUTHORIZED => {
+                    return Err(TmdbServiceError::InvalidApiKey);
+                }
+                status => {
+                    return Err(TmdbServiceError::UnexpectedTmdbStatusCode(status));
+                }
             },
-            recommendations: vec![DiscoverMovieByIdRecommendationsResponseDto {
-                recommendation_title: "Generos parecidos".to_owned(),
-                recommendation_movies: vec![
-                    DiscoverMovieByIdRecommendationsMovieResponseDto {
-                        movie_id: movie_id + 21,
-                        poster_path: "levi".to_owned(),
-                        title: "Levi".to_owned(),
-                    },
-                    DiscoverMovieByIdRecommendationsMovieResponseDto {
-                        movie_id: movie_id + 22,
-                        poster_path: "thalita".to_owned(),
-                        title: "Thalita".to_owned(),
-                    },
-                ],
-            }],
+            Err(error) => Err(TmdbServiceError::Unknown(error.into())),
+        }?;
+
+        Ok(DiscoverMovieByIdResponseDto {
+            movie: main_movie,
+            recommendations: vec![],
         })
     }
 }

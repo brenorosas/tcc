@@ -25,10 +25,6 @@ pub async fn tmdb_movie_discover_handler(
 
     for result in response.results.iter_mut() {
         result.poster_path = format!("https://image.tmdb.org/t/p/w500{}", result.poster_path);
-        if let Some(backdrop_path) = &result.backdrop_path {
-            result.backdrop_path =
-                Some(format!("https://image.tmdb.org/t/p/w500{}", backdrop_path));
-        }
     }
 
     Ok(Json(response))
