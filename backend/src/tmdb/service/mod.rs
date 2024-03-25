@@ -6,7 +6,9 @@ use std::time::Duration;
 use self::errors::TmdbServiceError;
 
 use super::dtos::{
-    discover_movie_by_id_response_dto::DiscoverMovieByIdResponseDto,
+    discover_movie_by_id_response_dto::{
+        DiscoverMovieByIdRecommendationsResponseDto, DiscoverMovieByIdResponseDto,
+    },
     discover_movie_dto::DiscoverMovieDto,
     discover_movie_response_dto::{DiscoverMovieResponseDto, DiscoverMovieResultDto},
 };
@@ -77,7 +79,7 @@ impl TmdbService {
             .send()
             .await;
 
-        let main_movie = match response {
+        let mut main_movie = match response {
             Ok(response) => match response.status() {
                 reqwest::StatusCode::OK => response
                     .json::<DiscoverMovieResultDto>()
@@ -93,9 +95,46 @@ impl TmdbService {
             Err(error) => Err(TmdbServiceError::Unknown(error.into())),
         }?;
 
+        main_movie.poster_path =
+            format!("https://image.tmdb.org/t/p/w500{}", main_movie.poster_path);
+
+        let with_genres = main_movie
+            .genres
+            .iter()
+            .map(|genre| genre.id.to_string())
+            .collect::<Vec<String>>()
+            .join(",");
+
+        let mut movies_with_same_genre = self
+            .client
+            .get(format!(
+                "{}/discover/movie?with_genres={}",
+                self.base_url, with_genres
+            ))
+            .bearer_auth(&self.bearer_token)
+            .send()
+            .await
+            .map_err(|error| TmdbServiceError::Unknown(error.into()))?
+            .json::<DiscoverMovieResponseDto>()
+            .await
+            .map_err(|_| TmdbServiceError::UnexpectedResponseDto)?;
+
+        for result in movies_with_same_genre.results.iter_mut() {
+            result.poster_path = format!("https://image.tmdb.org/t/p/w500{}", result.poster_path);
+        }
+
         Ok(DiscoverMovieByIdResponseDto {
             movie: main_movie,
-            recommendations: vec![],
+            recommendations: vec![
+                DiscoverMovieByIdRecommendationsResponseDto {
+                    recommendation_title: "Gêneros parecidos".to_owned(),
+                    recommendation_movies: movies_with_same_genre.results.clone(),
+                },
+                DiscoverMovieByIdRecommendationsResponseDto {
+                    recommendation_title: "Gêneros parecidos".to_owned(),
+                    recommendation_movies: movies_with_same_genre.results,
+                },
+            ],
         })
     }
 }

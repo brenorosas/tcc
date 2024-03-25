@@ -20,8 +20,19 @@ interface Recommendation {
 const MovieCard = ({ movie }: { movie: Movie }) => {
   return (
     <div className="movie-card">
-      <img src={movie.poster_path} alt={movie.title} />
+      <img src={movie.poster_path} alt={movie.title} className="poster" />
       <h3>{movie.title}</h3>
+      <style jsx>{`
+        .movie-card {
+          display: inline-block;
+          margin: 10px;
+          text-align: center;
+        }
+        .poster {
+          width: 150px; /* Ajuste o tamanho do pôster conforme necessário */
+          height: auto;
+        }
+      `}</style>
     </div>
   );
 };
@@ -33,13 +44,20 @@ const Recommendation = ({
 }) => {
   return (
     <div className="recommendation">
-      <h2>{recommendation.recommendation_title}</h2>
-      <div className="movies-list">
-        {recommendation.recommendation_movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
-      </div>
+    <h2>{recommendation.recommendation_title}</h2>
+    <div className="movies-list">
+      {recommendation.recommendation_movies.map(movie => (
+        <MovieCard key={movie.id} movie={movie} />
+      ))}
     </div>
+    <style jsx>{`
+      .movies-list {
+        white-space: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+    `}</style>
+  </div>
   );
 };
 
@@ -85,7 +103,7 @@ export default function Page(props: any) {
       });
   }, [authToken, id]);
 
-  if (loading) {
+  if (loading || !mainMovie || !recommendations) {
     return (
       <Container>
         <h1>Loading...</h1>
