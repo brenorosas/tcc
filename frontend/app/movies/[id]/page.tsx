@@ -1,10 +1,10 @@
 "use client";
 import * as React from "react";
-import { GridColDef } from "@mui/x-data-grid";
 import api from "../../api";
 import { getCookie } from "cookies-next";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Alert, AlertColor, Container, Grid, Snackbar } from "@mui/material";
+import Link from "next/link";
 
 interface Movie {
   id: number;
@@ -20,17 +20,26 @@ interface Recommendation {
 const MovieCard = ({ movie }: { movie: Movie }) => {
   return (
     <div className="movie-card">
-      <img src={movie.poster_path} alt={movie.title} className="poster" />
-      <h3>{movie.title}</h3>
+      <Link href={`/movies/${movie.id}`}>
+        <img src={movie.poster_path} alt={movie.title} className="poster" />
+        <h3 className="title">{movie.title}</h3>
+      </Link>
       <style jsx>{`
         .movie-card {
           display: inline-block;
           margin: 10px;
           text-align: center;
+          width: 180px; /* Fixed width for movie card */
         }
         .poster {
           width: 150px; /* Ajuste o tamanho do pôster conforme necessário */
           height: auto;
+        }
+        .title {
+          margin-top: 5px; /* Adjust margin for title */
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
       `}</style>
     </div>
@@ -44,20 +53,20 @@ const Recommendation = ({
 }) => {
   return (
     <div className="recommendation">
-    <h2>{recommendation.recommendation_title}</h2>
-    <div className="movies-list">
-      {recommendation.recommendation_movies.map(movie => (
-        <MovieCard key={movie.id} movie={movie} />
-      ))}
+      <h2>{recommendation.recommendation_title}</h2>
+      <div className="movies-list">
+        {recommendation.recommendation_movies.map((movie) => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
+      </div>
+      <style jsx>{`
+        .movies-list {
+          white-space: nowrap;
+          overflow-x: auto;
+          overflow-y: hidden;
+        }
+      `}</style>
     </div>
-    <style jsx>{`
-      .movies-list {
-        white-space: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-      }
-    `}</style>
-  </div>
   );
 };
 
