@@ -46,7 +46,7 @@ impl TmdbService {
     ) -> Result<DiscoverMovieResponseDto, TmdbServiceError> {
         let response = self
             .client
-            .get(format!("{}/discover/movie", self.base_url))
+            .get(format!("{}/discover/movie?language=pt-BR", self.base_url))
             .bearer_auth(&self.bearer_token)
             .query(&dto)
             .send()
@@ -74,7 +74,7 @@ impl TmdbService {
     ) -> Result<DiscoverMovieByIdResponseDto, TmdbServiceError> {
         let response = self
             .client
-            .get(format!("{}/movie/{}", self.base_url, movie_id))
+            .get(format!("{}/movie/{}?language=pt-BR", self.base_url, movie_id))
             .bearer_auth(&self.bearer_token)
             .send()
             .await;
@@ -108,7 +108,7 @@ impl TmdbService {
         let mut movies_with_same_genre = self
             .client
             .get(format!(
-                "{}/discover/movie?with_genres={}",
+                "{}/discover/movie?with_genres={}&language=pt-BR",
                 self.base_url, with_genres
             ))
             .bearer_auth(&self.bearer_token)
@@ -122,6 +122,8 @@ impl TmdbService {
         for result in movies_with_same_genre.results.iter_mut() {
             result.poster_path = format!("https://image.tmdb.org/t/p/w500{}", result.poster_path);
         }
+        
+        movies_with_same_genre.results.retain(|movie| movie.id != main_movie.id);
 
         Ok(DiscoverMovieByIdResponseDto {
             movie: main_movie,

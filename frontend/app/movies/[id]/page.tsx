@@ -10,6 +10,7 @@ interface Movie {
   id: number;
   poster_path: string;
   title: string;
+  overview: string;
 }
 
 interface Recommendation {
@@ -22,7 +23,7 @@ const MovieCard = ({ movie }: { movie: Movie }) => {
     <div className="movie-card">
       <Link href={`/movies/${movie.id}`}>
         <img src={movie.poster_path} alt={movie.title} className="poster" />
-        <h3 className="title">{movie.title}</h3>
+        {/* <h3 className="title">{movie.title}</h3> */}
       </Link>
       <style jsx>{`
         .movie-card {
@@ -40,6 +41,49 @@ const MovieCard = ({ movie }: { movie: Movie }) => {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const MainMovieCard = ({ movie }: { movie: Movie }) => {
+  return (
+    <div className="main-movie-card">
+      <div className="content">
+        <img src={movie.poster_path} alt={movie.title} className="poster" />
+        <div className="details">
+          <h1 className="title">{movie.title}</h1>
+          <p className="overview">{movie.overview}</p>
+        </div>
+      </div>
+      <style jsx>{`
+        .main-movie-card {
+          text-align: center;
+          margin-bottom: 20px;
+          width: 100%;
+        }
+        .content {
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+        }
+        .poster {
+          width: 200px; /* Adjusted size for poster */
+          height: auto;
+          margin-right: 20px; /* Added margin to separate poster from details */
+        }
+        .details {
+          flex: 1;
+          text-align: left; /* Aligning details to the left */
+        }
+        .title {
+          margin-top: 0; /* Reset margin */
+        }
+        .overview {
+          margin-top: 10px; /* Adjust margin for overview */
+          overflow: hidden;
+          word-wrap: break-word; /* Allow the overview to break into multiple lines */
         }
       `}</style>
     </div>
@@ -122,7 +166,7 @@ export default function Page(props: any) {
 
   return (
     <Container>
-      <MovieCard movie={mainMovie as Movie} />
+      <MainMovieCard movie={mainMovie as Movie} />
       <div>
         {recommendations.map((recommendation, index) => (
           <Recommendation key={index} recommendation={recommendation} />
