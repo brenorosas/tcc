@@ -16,12 +16,15 @@ interface Movie {
 interface Recommendation {
   recommendation_title: string;
   recommendation_movies: Movie[];
+  recommendation_type: string;
 }
 
-const MovieCard = ({ movie }: { movie: Movie }) => {
+const MovieCard = ({ movie, recommendation }: { movie: Movie, recommendation: Recommendation }) => {
   return (
     <div className="movie-card">
-      <Link href={`/movies/${movie.id}`}>
+      <Link href={`/movies/${movie.id}`} onClick={() => {
+        api.post(`/users/register-choice`, {recommendation_type: recommendation.recommendation_type});
+      }}>
         <img src={movie.poster_path} alt={movie.title} className="poster" />
         {/* <h3 className="title">{movie.title}</h3> */}
       </Link>
@@ -100,7 +103,7 @@ const Recommendation = ({
       <h2>{recommendation.recommendation_title}</h2>
       <div className="movies-list">
         {recommendation.recommendation_movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
+          <MovieCard key={movie.id} movie={movie} recommendation={recommendation} />
         ))}
       </div>
       <style jsx>{`
@@ -134,9 +137,6 @@ export default function Page(props: any) {
   let [recommendations, setRecommendations] = React.useState<Recommendation[]>(
     []
   );
-
-  console.log(mainMovie);
-  console.log(recommendations);
 
   React.useEffect(() => {
     api.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;

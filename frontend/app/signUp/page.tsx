@@ -55,12 +55,7 @@ export default function SignUp() {
     const email = data.get("email");
     const password = data.get("password");
     const passwordConfirmation = data.get("passwordConfirmation");
-    console.log({
-      email,
-      password,
-    });
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    console.log("api url", apiUrl);
 
     try {
       await api.post("/users/register", {

@@ -54,12 +54,7 @@ export default function SignIn() {
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
     const password = data.get("password");
-    console.log({
-      email,
-      password,
-    });
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    console.log("api url", apiUrl);
 
     try {
       let response = await api.post("/users/login", {

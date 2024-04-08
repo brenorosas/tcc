@@ -33,3 +33,20 @@ pub const GET_USER_BY_UUID: &str = "
     FROM users
     WHERE uuid = $1;
 ";
+
+pub const INSERT_USER_CHOICE: &str = "
+    INSERT INTO user_choices (user_uuid, recommendation_type)
+    VALUES ($1, $2)
+";
+
+pub const GET_LAST_USER_SIMILAR_CHOICE: &str = "
+    SELECT jsonb_build_object(
+        'recommendation_type', recommendation_type,
+        'inserted_at', inserted_at,
+        'user_uuid', user_uuid
+    ) AS user_choice
+    FROM user_choices
+    WHERE user_uuid = $1 AND recommendation_type = $2
+    ORDER BY inserted_at DESC
+    LIMIT 1
+";

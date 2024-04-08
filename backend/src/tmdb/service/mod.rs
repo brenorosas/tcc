@@ -11,8 +11,10 @@ use super::dtos::{
     },
     discover_movie_dto::DiscoverMovieDto,
     discover_movie_response_dto::{DiscoverMovieResponseDto, DiscoverMovieResultDto},
+    recommendation_type::RecommendationType,
 };
 use reqwest::{Client, ClientBuilder};
+use strum::IntoEnumIterator;
 
 pub struct TmdbService {
     base_url: String,
@@ -68,13 +70,54 @@ impl TmdbService {
             Err(error) => Err(TmdbServiceError::Unknown(error.into())),
         }
     }
+
+    pub async fn get_movies_with_genres(
+        &self,
+        genres: Vec<i64>,
+    ) -> Result<DiscoverMovieResponseDto, TmdbServiceError> {
+        let with_genres = genres
+            .iter()
+            .map(|genre| genre.to_string())
+            .collect::<Vec<String>>()
+            .join(",");
+
+        let response = self
+            .client
+            .get(format!(
+                "{}/discover/movie?with_genres={}&language=pt-BR",
+                self.base_url, with_genres
+            ))
+            .bearer_auth(&self.bearer_token)
+            .send()
+            .await;
+
+        match response {
+            Ok(response) => match response.status() {
+                reqwest::StatusCode::OK => response
+                    .json::<DiscoverMovieResponseDto>()
+                    .await
+                    .map_err(|_| TmdbServiceError::UnexpectedResponseDto),
+                reqwest::StatusCode::UNAUTHORIZED => {
+                    return Err(TmdbServiceError::InvalidApiKey);
+                }
+                status => {
+                    return Err(TmdbServiceError::UnexpectedTmdbStatusCode(status));
+                }
+            },
+            Err(error) => Err(TmdbServiceError::Unknown(error.into())),
+        }
+    }
+
     pub async fn discover_movie_by_id(
         &self,
         movie_id: i64,
     ) -> Result<DiscoverMovieByIdResponseDto, TmdbServiceError> {
         let response = self
             .client
-            .get(format!("{}/movie/{}?language=pt-BR", self.base_url, movie_id))
+            .get(format!(
+                "{}/movie/{}?language=pt-BR",
+                self.base_url, movie_id
+            ))
             .bearer_auth(&self.bearer_token)
             .send()
             .await;
@@ -98,45 +141,38 @@ impl TmdbService {
         main_movie.poster_path =
             format!("https://image.tmdb.org/t/p/w500{}", main_movie.poster_path);
 
-        let with_genres = main_movie
-            .genres
-            .iter()
-            .map(|genre| genre.id.to_string())
-            .collect::<Vec<String>>()
-            .join(",");
-
-        let mut movies_with_same_genre = self
-            .client
-            .get(format!(
-                "{}/discover/movie?with_genres={}&language=pt-BR",
-                self.base_url, with_genres
-            ))
-            .bearer_auth(&self.bearer_token)
-            .send()
-            .await
-            .map_err(|error| TmdbServiceError::Unknown(error.into()))?
-            .json::<DiscoverMovieResponseDto>()
-            .await
-            .map_err(|_| TmdbServiceError::UnexpectedResponseDto)?;
-
-        for result in movies_with_same_genre.results.iter_mut() {
-            result.poster_path = format!("https://image.tmdb.org/t/p/w500{}", result.poster_path);
+        let mut recommendations = vec![];
+        for recommendation_type in RecommendationType::iter() {
+            let movies = match recommendation_type {
+                RecommendationType::SimilarGenres => {
+                    self.get_movies_with_genres(
+                        main_movie.genres.iter().map(|genre| genre.id).collect(),
+                    )
+                    .await?
+                }
+            };
+            recommendations.push(DiscoverMovieByIdRecommendationsResponseDto {
+                recommendation_title: recommendation_type.pt_br_title(),
+                recommendation_movies: movies.results,
+                recommendation_type,
+            });
         }
-        
-        movies_with_same_genre.results.retain(|movie| movie.id != main_movie.id);
+
+        for recommendation in recommendations.iter_mut() {
+            recommendation
+                .recommendation_movies
+                .retain(|movie| movie.id != main_movie.id);
+        }
+
+        for recommendation in recommendations.iter_mut() {
+            for movie in recommendation.recommendation_movies.iter_mut() {
+                movie.poster_path = format!("https://image.tmdb.org/t/p/w500{}", movie.poster_path);
+            }
+        }
 
         Ok(DiscoverMovieByIdResponseDto {
             movie: main_movie,
-            recommendations: vec![
-                DiscoverMovieByIdRecommendationsResponseDto {
-                    recommendation_title: "Gêneros parecidos".to_owned(),
-                    recommendation_movies: movies_with_same_genre.results.clone(),
-                },
-                DiscoverMovieByIdRecommendationsResponseDto {
-                    recommendation_title: "Gêneros parecidos".to_owned(),
-                    recommendation_movies: movies_with_same_genre.results,
-                },
-            ],
+            recommendations,
         })
     }
 }

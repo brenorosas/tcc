@@ -14,7 +14,8 @@ use self::errors::UsersServiceError;
 
 use super::dtos::{
     create_user_dto::CreateUserDto, create_user_response_dto::CreateUserResponseDto,
-    user_login_dto::UserLoginDto, user_login_response_dto::UserLoginResponseDto,
+    register_user_choice_dto::RegisterUserChoiceDto, user_login_dto::UserLoginDto,
+    user_login_response_dto::UserLoginResponseDto,
 };
 
 use bcrypt::{hash, DEFAULT_COST};
@@ -104,5 +105,17 @@ impl UsersService {
             .ok_or(UsersServiceError::UserNotFound(user_uuid))?;
 
         Ok(user_entity)
+    }
+
+    pub async fn register_user_choice(
+        &self,
+        user: &UserEntity,
+        dto: RegisterUserChoiceDto,
+    ) -> Result<(), UsersServiceError> {
+        self.users_repository
+            .insert_user_choice(&user.uuid, &dto.recommendation_type)
+            .await?;
+
+        Ok(())
     }
 }
