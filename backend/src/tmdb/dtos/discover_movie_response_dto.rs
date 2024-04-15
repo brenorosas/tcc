@@ -19,7 +19,14 @@ pub struct DiscoverMovieResultDto {
     pub id: i64,
     pub title: String,
     pub overview: String,
-    pub poster_path: String,
+    pub poster_path: Option<String>,
     #[serde(default)]
     pub genres: Vec<DiscoverMovieGenreDto>,
+    #[serde(default)]
+    pub production_companies: Vec<DiscoverMovieProductionCompanyDto>,
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+pub struct DiscoverMovieProductionCompanyDto {
+    pub id: i64,
 }

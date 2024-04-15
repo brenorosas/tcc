@@ -23,8 +23,15 @@ pub async fn tmdb_movie_discover_handler(
         .await
         .map_err(|error| ErrorResponse::from(error))?;
 
+    response
+        .results
+        .retain(|result| result.poster_path.is_some());
+
     for result in response.results.iter_mut() {
-        result.poster_path = format!("https://image.tmdb.org/t/p/w500{}", result.poster_path);
+        result.poster_path = Some(format!(
+            "https://image.tmdb.org/t/p/w500{}",
+            result.poster_path.clone().unwrap()
+        ));
     }
 
     Ok(Json(response))
