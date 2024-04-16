@@ -91,9 +91,6 @@ export default function SignUp() {
           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign up
-          </Typography>
           <Box
             component="form"
             noValidate
@@ -106,7 +103,7 @@ export default function SignUp() {
                   required
                   fullWidth
                   id="email"
-                  label="Email Address"
+                  label="Email"
                   name="email"
                   autoComplete="email"
                 />
@@ -116,7 +113,7 @@ export default function SignUp() {
                   required
                   fullWidth
                   name="password"
-                  label="Password"
+                  label="Senha"
                   type="password"
                   id="password"
                   autoComplete="new-password"
@@ -127,7 +124,7 @@ export default function SignUp() {
                   required
                   fullWidth
                   name="passwordConfirmation"
-                  label="Password Confirmation"
+                  label="Confirmar senha"
                   type="password"
                   id="passwordConfirmation"
                   autoComplete="new-password-confirmation"
@@ -140,12 +137,12 @@ export default function SignUp() {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign Up
+              Cadastrar
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href="/signIn" variant="body2">
-                  Already have an account? Sign in
+                  Já tem uma conta? Faça login
                 </Link>
               </Grid>
             </Grid>
