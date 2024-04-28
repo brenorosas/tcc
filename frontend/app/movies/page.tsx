@@ -75,7 +75,7 @@ export default function Movies() {
             overflow: "hidden",
           }}
         >
-          {rowMovies.map((movie) => (
+          {rowMovies.map((movie: any) => (
             <div
               key={movie.id}
               style={{
