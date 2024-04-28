@@ -6,9 +6,10 @@ use backend::{
     user::service::UsersService,
 };
 use dotenv::dotenv;
+use native_tls::TlsConnector;
+use postgres_native_tls::MakeTlsConnector;
 use std::{net::SocketAddr, sync::Arc};
 use structopt::StructOpt;
-use tokio_postgres::NoTls;
 use tracing::{event, Level};
 
 #[derive(StructOpt, Debug)]
@@ -46,12 +47,14 @@ async fn migrations() -> Result<(), anyhow::Error> {
     pg_config.user(&config.user);
     pg_config.password(&config.password);
     pg_config.dbname(&config.dbname);
-    pg_config.application_name("tcc-api");
+    pg_config.application_name("tcc");
+    let tls_connector = TlsConnector::new()?;
+    let connector = MakeTlsConnector::new(tls_connector);
 
-    let (mut client, connection) = pg_config.connect(NoTls).await?;
+    let (mut client, connection) = pg_config.connect(connector).await?;
     tokio::spawn(async move {
         if let Err(e) = connection.await {
-            eprintln!("An error occured while connecting to database: {e}");
+            eprintln!("An error occurred while connecting to database: {e}");
         }
     });
 

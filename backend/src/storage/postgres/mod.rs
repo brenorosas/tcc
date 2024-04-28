@@ -1,5 +1,6 @@
 use deadpool_postgres::{Manager, ManagerConfig, Pool, RecyclingMethod};
-use tokio_postgres::NoTls;
+use native_tls::TlsConnector;
+use postgres_native_tls::MakeTlsConnector;
 use tracing::{event, Level};
 
 use self::config::PostgresConfig;
@@ -17,11 +18,13 @@ impl PostgresStorage {
         pg_config.user(&config.user);
         pg_config.password(&config.password);
         pg_config.dbname(&config.dbname);
-        pg_config.application_name("cashout");
+        pg_config.application_name("tcc");
         let mgr_config = ManagerConfig {
             recycling_method: RecyclingMethod::Fast,
         };
-        let mgr = Manager::from_config(pg_config, NoTls, mgr_config);
+        let tls_connector = TlsConnector::new()?;
+        let connector = MakeTlsConnector::new(tls_connector);
+        let mgr = Manager::from_config(pg_config, connector, mgr_config);
         let pool = Pool::builder(mgr).max_size(20).build().unwrap();
 
         let client = pool
