@@ -121,7 +121,7 @@ export default function Page(props: any) {
   let authToken = getCookie("authToken");
   let router = useRouter();
   if (!authToken) {
-    router.replace("/signIn");
+    router.replace("/");
   }
 
   let [openSnackBar, setOpenSnackBar] = React.useState(false);

@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
+import { LoadingButton } from "@mui/lab";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Link from "@mui/material/Link";
@@ -30,13 +30,14 @@ export default function SignIn() {
   let [snackBarSeverity, setSnackBarSeverity] =
     React.useState<AlertColor>("success");
   let [snackBarMessage, setSnackBarMessage] = React.useState<string>("");
+  let [isSignInLoading, setIsSignInLoading] = React.useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    setIsSignInLoading(true);
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
     const password = data.get("password");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     try {
       let response = await api.post("/users/login", {
@@ -50,6 +51,7 @@ export default function SignIn() {
       setSnackBarMessage(error.response.data.ptBrMessage);
       setOpenSnackBar(true);
     }
+    setIsSignInLoading(false);
   };
 
   return (
@@ -93,14 +95,15 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
             />
-            <Button
+            <LoadingButton
+              loading={isSignInLoading}
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
               Entrar
-            </Button>
+            </LoadingButton>
             <Grid container>
               <Grid item>
                 <Link href="/signUp" variant="body2">

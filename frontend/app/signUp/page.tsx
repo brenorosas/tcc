@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Link from "@mui/material/Link";
@@ -14,6 +13,7 @@ import { getCookie, setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { Alert, AlertColor, Snackbar } from "@mui/material";
 import api from "../api";
+import { LoadingButton } from "@mui/lab";
 
 
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -30,8 +30,10 @@ export default function SignUp() {
   let [snackBarSeverity, setSnackBarSeverity] =
     React.useState<AlertColor>("success");
   let [snackBarMessage, setSnackBarMessage] = React.useState<string>("");
+  let [isSignUpLoading, setIsSignUpLoading] = React.useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    setIsSignUpLoading(true);
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
@@ -49,13 +51,14 @@ export default function SignUp() {
       setSnackBarMessage("User created successfully");
       setOpenSnackBar(true);
       setTimeout(() => {
-        router.push("/signIn");
+        router.push("/");
       }, 2000);
     } catch (error: any) {
       setSnackBarSeverity("error");
       setSnackBarMessage(error.response.data.ptBrMessage);
       setOpenSnackBar(true);
     }
+    setIsSignUpLoading(false);
   };
 
   return (
@@ -113,17 +116,18 @@ export default function SignUp() {
                 />
               </Grid>
             </Grid>
-            <Button
+            <LoadingButton
+              loading={isSignUpLoading}
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
               Cadastrar
-            </Button>
+            </LoadingButton>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="/signIn" variant="body2">
+                <Link href="/" variant="body2">
                   Já tem uma conta? Faça login
                 </Link>
               </Grid>

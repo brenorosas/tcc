@@ -30,7 +30,7 @@ export default function Movies() {
 
   const handleSignOut = () => {
     deleteCookie("authToken");
-    router.replace("/signIn");
+    router.replace("/");
   };
 
   const handlePaginationChange = (newPage: any) => {
@@ -42,7 +42,7 @@ export default function Movies() {
 
   React.useEffect(() => {
     if (!authToken) {
-      router.replace("/signIn");
+      router.replace("/");
     } else {
       api.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
       setLoading(true);
