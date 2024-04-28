@@ -79,7 +79,7 @@ impl TmdbService {
             .iter()
             .map(|genre| genre.to_string())
             .collect::<Vec<String>>()
-            .join(",");
+            .join("|");
 
         let response = self
             .client
@@ -116,7 +116,7 @@ impl TmdbService {
             .iter()
             .map(|company| company.to_string())
             .collect::<Vec<String>>()
-            .join(",");
+            .join("|");
 
         let response = self
             .client
