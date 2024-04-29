@@ -15,7 +15,7 @@ impl RecommendationType {
             RecommendationType::SimilarGenres => "Gêneros Similares".to_string(),
             RecommendationType::SimilarCompanies => "Produtoras Similares".to_string(),
             RecommendationType::Keywords => "Palavras-chave".to_string(),
-            RecommendationType::Recommendations => "Recomendações".to_string(),
+            RecommendationType::Recommendations => "Quem gostou desse também gostou de".to_string(),
         }
     }
 }
